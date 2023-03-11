@@ -36,8 +36,7 @@ defmodule Abatap.MixProject do
 
   defp package() do
     [
-      files: ~w(lib priv .formatter.exs mix.exs README* readme* LICENSE*
-                license* CHANGELOG* changelog* src),
+      files: ~w(lib .formatter.exs mix.exs README* LICENSE*),
       licenses: ["BSD-2-Clause"],
       links: %{"GitHub" => "https://github.com/mazz/abatap"}
     ]
