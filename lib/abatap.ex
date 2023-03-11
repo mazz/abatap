@@ -1,10 +1,8 @@
 defmodule Abatap do
   @moduledoc """
-  `Abatap.generate` - generate avatar
+  Generate a basic PNG avatar from first name and last name. Largely based on https://github.com/zhangsoledad/alchemic_avatar and code by Sergio Tapia.
   """
 
-  @fullsize 240
-  @fill_color "rgba(255, 255, 255, 0.65)"
   @fill_color_light "rgba(255, 255, 255, 0.75)"
   @fill_color_dark "rgba(0, 0, 0, 0.65)"
   @font_filename Path.join(__DIR__, "data/Roboto-Medium")
@@ -20,7 +18,7 @@ defmodule Abatap do
   @doc """
   Generates an image using first name and last name of a user using imagemagick's convert command line tool.
 
-  This code was cribbed from Sergio Tapia (https://sergiotapia.com/)
+  This function was cribbed from Sergio Tapia (https://sergiotapia.com/)
 
   https://elixirforum.com/t/generate-images-with-name-initials-using-elixir-and-imagemagick/12668
 
@@ -80,6 +78,7 @@ defmodule Abatap do
       end
 
     initials = "#{String.at(first_name, 0)}#{String.at(last_name, 0)}"
+
     image_path =
       System.tmp_dir!()
       |> Path.join(

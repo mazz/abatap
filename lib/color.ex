@@ -1,30 +1,27 @@
 defmodule Abatap.Color do
-  @doc """
+  @moduledoc """
   Provides two different color models to choose from: google and iwanthue.
 
   This code was cribbed from https://github.com/zhangsoledad/alchemic_avatar
-
-  options: [palette: :google, appearance: :light, size: 512]
-
   """
 
-  @palettes [:google, :iwanthue]
+  @doc """
+  Returns a random color from the google color palette.
+  """
 
   def google_random() do
     len = tuple_size(google_tuple())
     google_tuple() |> elem(Enum.random(0..(len - 1)))
   end
 
+  @doc """
+  Returns a random color from the iwanthue color palette.
+  """
+
   def iwanthue_random() do
     len = tuple_size(iwanthue_tuple())
     index = Enum.random(0..(len - 1))
 
-    iwanthue_tuple() |> elem(index)
-  end
-
-  def iwanthue(username) do
-    len = tuple_size(iwanthue_tuple())
-    index = username |> hexdigest |> digest_to_index(len)
     iwanthue_tuple() |> elem(index)
   end
 
