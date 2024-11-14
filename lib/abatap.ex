@@ -23,7 +23,25 @@ defmodule Abatap do
 
   https://elixirforum.com/t/generate-images-with-name-initials-using-elixir-and-imagemagick/12668
 
-  options: [palette: :google]
+  ## Examples
+
+      ## default options
+      # - palette: :google
+      # - shape: :square
+      # - size: 512
+      # - padding: size * 0.546875
+
+      iex> Abatap.create_from_initials("John", "Doe")
+      {:ok, "/var/folders/bq/v60646nd7370n3lffmgfh94r00016k/T/JD-google-1731556906832.png"}
+
+      iex> Abatap.create_from_initials("John", "Doe", palette: :google)
+      {:ok, "/var/folders/bq/v60646nd7370n3lffmgfh94r00016k/T/JD-google-1731556436238.png"}
+
+      iex> Abatap.create_from_initials("John", "Doe", palette: :iwanthue, shape: :circle)
+      {:ok, "/var/folders/bq/v60646nd7370n3lffmgfh94r00016k/T/JD-iwanthue-1731557222647.png"}
+
+      iex> Abatap.create_from_initials("John", "Doe", palette: :google, shape: :squircle, size: 1024, padding: 400)
+      {:ok, "/var/folders/bq/v60646nd7370n3lffmgfh94r00016k/T/JD-google-1731556436238.png"}
 
   """
 
@@ -33,6 +51,32 @@ defmodule Abatap do
         nil ->
           :google
 
+        value ->
+          value
+      end
+
+    shape =
+      case Keyword.get(options, :shape) do
+        nil ->
+          :square
+
+        value ->
+          value
+      end
+
+    size =
+      case Keyword.get(options, :size) do
+        nil ->
+          512
+
+        value ->
+          value
+      end
+
+    padding =
+      case Keyword.get(options, :padding) do
+        nil ->
+          trunc(size * 0.546875)
         value ->
           value
       end
@@ -47,8 +91,6 @@ defmodule Abatap do
           "#" <> "#{rgb_to_hex(Enum.at(rgb_list, 0), Enum.at(rgb_list, 1), Enum.at(rgb_list, 2))}"
       end
 
-    dbg(bg_color)
-
     initials = "#{String.at(first_name, 0)}#{String.at(last_name, 0)}"
 
     image_path =
@@ -57,7 +99,7 @@ defmodule Abatap do
         "#{initials}-#{Atom.to_string(palette)}-#{:os.system_time(:milli_seconds)}.png"
       )
 
-    {:ok, avatar} = Image.Text.text!(initials, background_fill_color: bg_color, font_size: 512, padding: 280) |> Image.avatar(shape: :square, size: 512)
+    {:ok, avatar} = Image.Text.text!(initials, background_fill_color: bg_color, font_size: size, padding: padding) |> Image.avatar(shape: shape, size: size)
 
     Image.write!(avatar, image_path)
     {:ok, image_path}
