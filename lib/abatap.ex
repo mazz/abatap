@@ -64,12 +64,12 @@ defmodule Abatap do
 
           rgb_list = Abatap.Color.google_random()
 
-          "# <> #{rgb_to_hex(Enum.at(rgb_list, 0), Enum.at(rgb_list, 1), Enum.at(rgb_list, 2))}"
+          "#" <> "#{rgb_to_hex(Enum.at(rgb_list, 0), Enum.at(rgb_list, 1), Enum.at(rgb_list, 2))}"
         :iwanthue ->
           # to_rgb(Abatap.Color.iwanthue_random())
           rgb_list = Abatap.Color.iwanthue_random()
 
-          "# <> #{rgb_to_hex(Enum.at(rgb_list, 0), Enum.at(rgb_list, 1), Enum.at(rgb_list, 2))}"
+          "#" <> "#{rgb_to_hex(Enum.at(rgb_list, 0), Enum.at(rgb_list, 1), Enum.at(rgb_list, 2))}"
       end
 
     dbg(bg_color)
