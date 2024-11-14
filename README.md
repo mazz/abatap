@@ -3,7 +3,43 @@
 Generate letter avatar from username.
 >Shamelessly copied from [alchemic_avatar](https://github.com/zhangsoledad/alchemic_avatar) and slightly modified with this code sample originally written by [Sergio Tapia](https://tapia49.rssing.com/chan-5508682/all_p2.html#item35)
 
+## Installation
+
+If [available in Hex](https://hex.pm/docs/publish), the package can be installed
+by adding `abatap` to your list of dependencies in `mix.exs`:
+
+```elixir
+def deps do
+  [
+    {:abatap, "~> 0.2.0"}
+  ]
+end
+```
+
+Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
+and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
+be found at <https://hexdocs.pm/abatap>.
+
 ## Examples
+```
+  ## default options
+  # - palette: :google
+  # - shape: :square
+  # - size: 512
+  # - padding: size * 0.546875
+
+  iex> Abatap.create_from_initials("John", "Doe")
+  {:ok, "/var/folders/bq/v60646nd7370n3lffmgfh94r00016k/T/JD-google-1731556906832.png"}
+
+  iex> Abatap.create_from_initials("John", "Doe", palette: :google)
+  {:ok, "/var/folders/bq/v60646nd7370n3lffmgfh94r00016k/T/JD-google-1731556436238.png"}
+
+  iex> Abatap.create_from_initials("John", "Doe", palette: :iwanthue, shape: :circle)
+  {:ok, "/var/folders/bq/v60646nd7370n3lffmgfh94r00016k/T/JD-iwanthue-1731557222647.png"}
+
+  iex> Abatap.create_from_initials("John", "Doe", palette: :google, shape: :squircle, size: 1024, padding: 400)
+  {:ok, "/var/folders/bq/v60646nd7370n3lffmgfh94r00016k/T/JD-google-1731556436238.png"}
+```
 
 #### Google's Inbox Palette
 
@@ -14,32 +50,4 @@ Generate letter avatar from username.
 A palette generated from:
 
 [iwanthue](https://medialab.github.io/iwanthue/)
-
-## Installation
-System requirements
-
-```bash
-$ sudo apt-get install -y imagemagick
-```
-
-Mac OS X
-
-```bash
-$ brew install imagemagick ghostscript
-```
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `abatap` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:abatap, "~> 0.1.0"}
-  ]
-end
-```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/abatap>.
 

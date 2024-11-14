@@ -3,16 +3,17 @@ defmodule Abatap do
   Generate a basic PNG avatar from first name and last name. Largely based on https://github.com/zhangsoledad/alchemic_avatar and code by Sergio Tapia.
   """
 
-  @fill_color_light "rgba(255, 255, 255, 0.75)"
-  @fill_color_dark "rgba(0, 0, 0, 0.65)"
-  @font_filename Path.join(__DIR__, "data/Roboto-Medium")
-
-  # 300/512
-  @font_size_ratio 0.5859375
-
   defp to_rgb(color) do
     [r, g, b] = color
     "rgb(#{r},#{g},#{b})"
+  end
+
+  defp rgb_to_hex(r, g, b) when r in 0..255 when g in 0..255 when b in 0..255 do
+    "~2.16.0B"
+    |> List.duplicate(3)
+    |> Enum.join()
+    |> :io_lib.format([r, g, b])
+    |> to_string
   end
 
   @doc """
@@ -22,14 +23,29 @@ defmodule Abatap do
 
   https://elixirforum.com/t/generate-images-with-name-initials-using-elixir-and-imagemagick/12668
 
-  options: [palette: :google, appearance: :light, size: 512]
+  ## Examples
+
+      ## default options
+      # - palette: :google
+      # - shape: :square
+      # - size: 512
+      # - padding: size * 0.546875
+
+      iex> Abatap.create_from_initials("John", "Doe")
+      {:ok, "/var/folders/bq/v60646nd7370n3lffmgfh94r00016k/T/JD-google-1731556906832.png"}
+
+      iex> Abatap.create_from_initials("John", "Doe", palette: :google)
+      {:ok, "/var/folders/bq/v60646nd7370n3lffmgfh94r00016k/T/JD-google-1731556436238.png"}
+
+      iex> Abatap.create_from_initials("John", "Doe", palette: :iwanthue, shape: :circle)
+      {:ok, "/var/folders/bq/v60646nd7370n3lffmgfh94r00016k/T/JD-iwanthue-1731557222647.png"}
+
+      iex> Abatap.create_from_initials("John", "Doe", palette: :google, shape: :squircle, size: 1024, padding: 400)
+      {:ok, "/var/folders/bq/v60646nd7370n3lffmgfh94r00016k/T/JD-google-1731556436238.png"}
 
   """
-  def create_from_initials(first_name, last_name, options \\ [])
-      when byte_size(first_name) > 0 and byte_size(last_name) > 0 do
-    resolution = 72
-    sampling_factor = 3
 
+  def create_from_initials(first_name, last_name, options \\ []) when byte_size(first_name) > 0 and byte_size(last_name) > 0 do
     palette =
       case Keyword.get(options, :palette) do
         nil ->
@@ -39,10 +55,10 @@ defmodule Abatap do
           value
       end
 
-    appearance =
-      case Keyword.get(options, :appearance) do
+    shape =
+      case Keyword.get(options, :shape) do
         nil ->
-          :light
+          :square
 
         value ->
           value
@@ -57,24 +73,22 @@ defmodule Abatap do
           value
       end
 
-    font_size = Float.to_string(@font_size_ratio * size)
+    padding =
+      case Keyword.get(options, :padding) do
+        nil ->
+          trunc(size * 0.546875)
+        value ->
+          value
+      end
 
     bg_color =
       case palette do
         :google ->
-          to_rgb(Abatap.Color.google_random())
-
+          rgb_list = Abatap.Color.google_random()
+          "#" <> "#{rgb_to_hex(Enum.at(rgb_list, 0), Enum.at(rgb_list, 1), Enum.at(rgb_list, 2))}"
         :iwanthue ->
-          to_rgb(Abatap.Color.iwanthue_random())
-      end
-
-    fill_color =
-      case appearance do
-        :light ->
-          @fill_color_light
-
-        :dark ->
-          @fill_color_dark
+          rgb_list = Abatap.Color.iwanthue_random()
+          "#" <> "#{rgb_to_hex(Enum.at(rgb_list, 0), Enum.at(rgb_list, 1), Enum.at(rgb_list, 2))}"
       end
 
     initials = "#{String.at(first_name, 0)}#{String.at(last_name, 0)}"
@@ -82,41 +96,13 @@ defmodule Abatap do
     image_path =
       System.tmp_dir!()
       |> Path.join(
-        "#{initials}-#{Atom.to_string(palette)}-#{Atom.to_string(appearance)}-#{:os.system_time(:milli_seconds)}.png"
+        "#{initials}-#{Atom.to_string(palette)}-#{:os.system_time(:milli_seconds)}.png"
       )
 
-    System.cmd("convert", [
-      # sample up
-      "-density",
-      "#{resolution * sampling_factor}",
-      # corrected size
-      "-size",
-      "#{size * sampling_factor}x#{size * sampling_factor}",
-      # background color
-      "xc:#{bg_color}",
-      # text color
-      "-fill",
-      fill_color,
-      # @fill_color,
-      # font location
-      "-font",
-      "#{@font_filename}",
-      # font size
-      "-pointsize",
-      font_size,
-      # center text
-      "-gravity",
-      "center",
-      # render text in the center
-      "-annotate",
-      "+0+0",
-      "#{initials}",
-      # sample down to reduce aliasing
-      "-resample",
-      "#{resolution}",
-      image_path
-    ])
+    {:ok, avatar} = Image.Text.text!(initials, background_fill_color: bg_color, font_size: size, padding: padding) |> Image.avatar(shape: shape, size: size)
 
+    Image.write!(avatar, image_path)
     {:ok, image_path}
+
   end
 end
