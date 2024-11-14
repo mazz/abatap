@@ -15,6 +15,14 @@ defmodule Abatap do
     "rgb(#{r},#{g},#{b})"
   end
 
+  defp rgb_to_hex(r, g, b) when r in 0..255 when g in 0..255 when b in 0..255 do
+    "~2.16.0B"
+    |> List.duplicate(3)
+    |> Enum.join()
+    |> :io_lib.format([r, g, b])
+    |> to_string
+  end
+
   def create_from_initials_image(first_name, last_name, options \\ [])
   when byte_size(first_name) > 0 and byte_size(last_name) > 0 do
     resolution = 72
@@ -52,11 +60,19 @@ defmodule Abatap do
     bg_color =
       case palette do
         :google ->
-          to_rgb(Abatap.Color.google_random())
+          # to_rgb(Abatap.Color.google_random())
 
+          rgb_list = Abatap.Color.google_random()
+
+          "# <> #{rgb_to_hex(Enum.at(rgb_list, 0), Enum.at(rgb_list, 1), Enum.at(rgb_list, 2))}"
         :iwanthue ->
-          to_rgb(Abatap.Color.iwanthue_random())
+          # to_rgb(Abatap.Color.iwanthue_random())
+          rgb_list = Abatap.Color.iwanthue_random()
+
+          "# <> #{rgb_to_hex(Enum.at(rgb_list, 0), Enum.at(rgb_list, 1), Enum.at(rgb_list, 2))}"
       end
+
+    dbg(bg_color)
 
     fill_color =
       case appearance do
@@ -75,8 +91,8 @@ defmodule Abatap do
         "#{initials}-#{Atom.to_string(palette)}-#{Atom.to_string(appearance)}-#{:os.system_time(:milli_seconds)}.png"
       )
 
-
-      {:ok, avatar} = Image.Text.text!(initials, background_fill_color: :cyan, font_size: 512, padding: 280) |> Image.avatar(shape: :square, size: 512)
+      {:ok, avatar} = Image.Text.text!(initials, background_fill_color: bg_color, font_size: 512, padding: 280) |> Image.avatar(shape: :square, size: 512)
+      # {:ok, avatar} = Image.Text.text!(initials, background_fill_color: :cyan, font_size: 512, padding: 280) |> Image.avatar(shape: :square, size: 512)
 
       Image.write!(avatar, image_path)
     # System.cmd("convert", [
